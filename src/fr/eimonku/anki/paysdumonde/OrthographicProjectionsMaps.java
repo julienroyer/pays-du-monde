@@ -1,4 +1,4 @@
-package fr.eimonku.anki.paysmonde;
+package fr.eimonku.anki.paysdumonde;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;

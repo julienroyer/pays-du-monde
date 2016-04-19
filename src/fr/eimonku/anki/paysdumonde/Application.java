@@ -1,6 +1,5 @@
-package fr.eimonku.anki.paysmonde;
+package fr.eimonku.anki.paysdumonde;
 
-import static java.lang.String.join;
 import static java.lang.System.out;
 
 import java.nio.file.Paths;
@@ -10,7 +9,7 @@ public class Application {
 		new ListeDesPaysDuMonde(Paths.get(args[0]), new WikipediaCache(Paths.get(args[1]))).forEach(state -> {
 			out.print(state.name);
 			out.print(';');
-			out.print(join(", ", state.capitalNames));
+			out.print(state.capitals);
 			out.print(';');
 			out.print(state.map);
 			out.print(';');

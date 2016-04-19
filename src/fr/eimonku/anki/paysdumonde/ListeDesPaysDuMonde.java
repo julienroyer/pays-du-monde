@@ -1,4 +1,4 @@
-package fr.eimonku.anki.paysmonde;
+package fr.eimonku.anki.paysdumonde;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
@@ -76,12 +76,13 @@ public class ListeDesPaysDuMonde {
 
 				final Document enDocument = cache.get("France".equals(name) ? "https://en.wikipedia.org/wiki/France"
 		        : document.select("li.interwiki-en a").get(0).absUrl("href"));
-				final String enCanonicalUrl = enDocument.baseUri();
 				final String enName = name(enDocument);
 
-				action.accept(new State(name, canonicalUrl, map(enName, document, enDocument, fileName),
-		        flag(document, fileName), gentile(document), internetDomain(document), enName, enCanonicalUrl,
-		        listeDesCapitalesDuMonde.capitalNamesForWikipediaCanonicalUrl(canonicalUrl).collect(toList())));
+				action.accept(new State(name,
+		        String.join(", ",
+		            listeDesCapitalesDuMonde.capitalNamesForWikipediaCanonicalUrl(canonicalUrl).collect(toList())),
+		        map(enName, document, enDocument, fileName), flag(document, fileName), gentile(document),
+		        internetDomain(document), enName));
 			}
 		}));
 	}
