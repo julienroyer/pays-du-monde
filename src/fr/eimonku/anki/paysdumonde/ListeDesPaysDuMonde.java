@@ -118,7 +118,7 @@ public class ListeDesPaysDuMonde {
 						throw new RuntimeException(format("unable to copy '%s' to '%s'", url, mediaPath), e);
 					} else {
 						try {
-							sleep(2000);
+							sleep(i * i * 500);
 						} catch (InterruptedException e1) {
 							throw new RuntimeException("interrupted", e1);
 						}

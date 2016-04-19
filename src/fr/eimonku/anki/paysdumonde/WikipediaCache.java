@@ -101,7 +101,7 @@ public class WikipediaCache {
 					throw new RuntimeException(format("unable to access url '%s'", url), e);
 				} else {
 					try {
-						sleep(2000);
+						sleep(i * i * 500);
 					} catch (InterruptedException e1) {
 						throw new RuntimeException("interrupted", e1);
 					}
