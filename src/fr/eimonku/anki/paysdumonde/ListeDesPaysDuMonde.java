@@ -134,21 +134,15 @@ public class ListeDesPaysDuMonde {
 	}
 
 	private static String gentile(Document document) {
-		final StringBuilder sb = new StringBuilder();
 		final Elements els = document.select("th:has(a[href=/wiki/Gentil%C3%A9])+td");
-		if (!els.isEmpty()) {
-			appendText(els.get(0), sb);
-		}
-		return sb.toString();
+		return !els.isEmpty() ? text(els.get(0)) : "";
 	}
 
 	private static String internetDomain(Document document) {
-		final StringBuilder sb = new StringBuilder();
-		appendText(document.select("th:has(a[href=/wiki/Domaine_de_premier_niveau])+td").get(0), sb);
-		return sb.toString();
+		return text(document.select("th:has(a[href=/wiki/Domaine_de_premier_niveau])+td").get(0));
 	}
 
-	private static Pattern STATE_NAME_PATTERN = compile("([^(]+)(?: \\([^)]+\\))?");
+	private static final Pattern STATE_NAME_PATTERN = compile("([^(]+)(?: \\([^)]+\\))?");
 
 	private static String name(Document document) {
 		final String h1 = document.select("h1").text();
@@ -160,11 +154,17 @@ public class ListeDesPaysDuMonde {
 		}
 	}
 
-	private static Pattern TITLE_TAG_PATTERN = Pattern.compile("h([1-6])");
+	private static Pattern TITLE_TAG_PATTERN = compile("h([1-6])");
 
 	private static Optional<Integer> titleLevel(Element el) {
 		final Matcher m = TITLE_TAG_PATTERN.matcher(el.tagName());
 		return m.matches() ? Optional.of(parseInt(m.group(1))) : Optional.empty();
+	}
+
+	private static String text(Element el) {
+		final StringBuilder sb = new StringBuilder();
+		appendText(el, sb);
+		return sb.toString();
 	}
 
 	private static void appendText(Node n, StringBuilder sb) {
