@@ -7,6 +7,7 @@ import static java.nio.file.Files.newBufferedReader;
 import static java.nio.file.Files.newBufferedWriter;
 import static java.nio.file.Files.newInputStream;
 import static java.nio.file.Files.newOutputStream;
+import static org.apache.logging.log4j.LogManager.getLogger;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.Iterator;
@@ -22,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -31,6 +34,7 @@ import fr.eimonku.json.JsonReader.InvalidJsonException;
 import fr.eimonku.json.JsonWriter;
 
 public class WikipediaCache {
+	private static final Logger logger = getLogger();
 	private static final String IDS_FILE_NAME = "ids.json", PROPERTIES_FILE_NAME = "properties.json";
 
 	private final Path cacheDir;
@@ -52,6 +56,8 @@ public class WikipediaCache {
 					throw new RuntimeException(format("duplicate URI '%s'", document.baseUri));
 				}
 			});
+		} catch (NoSuchFileException e) {
+			logger.warn("no properties file");
 		} catch (IOException | InvalidJsonException e) {
 			throw new RuntimeException("unable to read properties file", e);
 		}
@@ -65,6 +71,8 @@ public class WikipediaCache {
 
 				idsByUrls.put(url, id);
 			});
+		} catch (NoSuchFileException e) {
+			logger.warn("no ids file");
 		} catch (IOException | InvalidJsonException e) {
 			throw new RuntimeException("unable to read ids file", e);
 		}
