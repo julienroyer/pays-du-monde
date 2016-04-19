@@ -3,6 +3,7 @@ package fr.eimonku.anki.paysdumonde;
 import static java.lang.Long.max;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
+import static java.lang.Thread.sleep;
 import static java.nio.file.Files.newBufferedReader;
 import static java.nio.file.Files.newBufferedWriter;
 import static java.nio.file.Files.newInputStream;
@@ -98,6 +99,12 @@ public class WikipediaCache {
 			} catch (SocketTimeoutException e) {
 				if (i >= 3) {
 					throw new RuntimeException(format("unable to access url '%s'", url), e);
+				} else {
+					try {
+						sleep(2000);
+					} catch (InterruptedException e1) {
+						throw new RuntimeException("interrupted", e1);
+					}
 				}
 			} catch (IOException e) {
 				throw new RuntimeException(format("unable to access url '%s'", url), e);
