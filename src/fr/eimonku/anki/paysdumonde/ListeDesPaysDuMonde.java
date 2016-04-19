@@ -2,6 +2,7 @@ package fr.eimonku.anki.paysdumonde;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static java.lang.Thread.sleep;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.isReadable;
 import static java.util.Locale.FRENCH;
@@ -108,10 +109,21 @@ public class ListeDesPaysDuMonde {
 
 		final Path mediaPath = mediaDir.resolve(fullFileName);
 		if (!isReadable(mediaPath)) {
-			try (InputStream in = url.openStream()) {
-				copy(in, mediaPath);
-			} catch (IOException e) {
-				throw new RuntimeException(format("unable to copy '%s' to '%s'", url, mediaPath), e);
+			for (int i = 1; true; ++i) {
+				try (InputStream in = url.openStream()) {
+					copy(in, mediaPath);
+					break;
+				} catch (IOException e) {
+					if (i >= 3) {
+						throw new RuntimeException(format("unable to copy '%s' to '%s'", url, mediaPath), e);
+					} else {
+						try {
+							sleep(2000);
+						} catch (InterruptedException e1) {
+							throw new RuntimeException("interrupted", e1);
+						}
+					}
+				}
 			}
 		}
 
