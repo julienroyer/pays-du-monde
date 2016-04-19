@@ -87,45 +87,31 @@ public class ListeDesPaysDuMonde {
 	}
 
 	private String map(String enName, Document frDocument, Document enDocument, String fileName) {
-		final URL url;
-		try {
-			url = new URL(cache.get(orthographicProjectionsMaps.mapForDocumentAndEnName(enName, frDocument, enDocument))
-			    .select("div.fullMedia a").get(0).absUrl("href"));
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("invalid map URL", e);
-		}
-
-		final String fullFileName = format("Carte-pays_%s.%s", fileName, url.getPath().endsWith(".png") ? "png" : "svg");
-
-		final Path mapPath = mediaDir.resolve(fullFileName);
-		if (!isReadable(mapPath)) {
-			try (InputStream in = url.openStream()) {
-				copy(in, mapPath);
-			} catch (IOException e) {
-				throw new RuntimeException(format("unable to write map '%s'", mapPath), e);
-			}
-		}
-
-		return format("<img src=\"%s\" />", fullFileName);
+		return media(cache.get(orthographicProjectionsMaps.mapForDocumentAndEnName(enName, frDocument, enDocument))
+		    .select("div.fullMedia a").get(0).absUrl("href"), "Carte-pays_" + fileName);
 	}
 
 	private String flag(Document document, String fileName) {
+		return media(cache.get(document.select("a[title=Drapeau]").get(0).absUrl("href")).select("div.fullMedia a").get(0)
+		    .absUrl("href"), "Drapeau-pays_" + fileName);
+	}
+
+	private String media(String urlStr, String fileName) {
 		final URL url;
 		try {
-			url = new URL(cache.get(document.select("a[title=Drapeau]").get(0).absUrl("href")).select("div.fullMedia a")
-			    .get(0).absUrl("href"));
+			url = new URL(urlStr);
 		} catch (MalformedURLException e) {
-			throw new RuntimeException(format("invalid flag URL for '%s'", fileName), e);
+			throw new RuntimeException(format("invalid URL '%s'", urlStr), e);
 		}
 
-		final String fullFileName = format("Drapeau-pays_%s.svg", fileName);
+		final String fullFileName = format("%s.%s", fileName, url.getPath().endsWith(".png") ? "png" : "svg");
 
-		final Path flagPath = mediaDir.resolve(fullFileName);
-		if (!isReadable(flagPath)) {
+		final Path mediaPath = mediaDir.resolve(fullFileName);
+		if (!isReadable(mediaPath)) {
 			try (InputStream in = url.openStream()) {
-				copy(in, flagPath);
+				copy(in, mediaPath);
 			} catch (IOException e) {
-				throw new RuntimeException(format("unable to write flag '%s'", flagPath), e);
+				throw new RuntimeException(format("unable to copy '%s' to '%s'", url, mediaPath), e);
 			}
 		}
 
