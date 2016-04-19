@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.SocketTimeoutException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.AbstractMap;
@@ -86,13 +87,21 @@ public class WikipediaCache {
 			}
 		}
 
-		final Response response;
-		final Document document;
-		try {
-			response = Jsoup.connect(url).execute();
-			document = response.parse();
-		} catch (IOException e) {
-			throw new RuntimeException(format("unable to access url '%s'", url), e);
+		Response response;
+		Document document;
+		for (int i = 1; true; ++i) {
+			try {
+				response = Jsoup.connect(url).execute();
+				document = response.parse();
+
+				break;
+			} catch (SocketTimeoutException e) {
+				if (i >= 3) {
+					throw new RuntimeException(format("unable to access url '%s'", url), e);
+				}
+			} catch (IOException e) {
+				throw new RuntimeException(format("unable to access url '%s'", url), e);
+			}
 		}
 
 		final String baseUri = document.select("link[rel=canonical]").attr("href"), charsetName = document.charset().name();
