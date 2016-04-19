@@ -170,7 +170,7 @@ public class WikipediaCache {
 	}
 
 	private Path cachedDocumentPath(long id) {
-		return cacheDir.resolve(format("cache_%s.html", id));
+		return cacheDir.resolve(format("cache_%06d.html", id));
 	}
 
 	private static class CachedDocument {
