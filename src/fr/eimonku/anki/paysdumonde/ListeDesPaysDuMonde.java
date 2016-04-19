@@ -6,7 +6,7 @@ import static java.nio.file.Files.copy;
 import static java.nio.file.Files.isReadable;
 import static java.util.Locale.FRENCH;
 import static java.util.regex.Pattern.compile;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.joining;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,8 +79,7 @@ public class ListeDesPaysDuMonde {
 				final String enName = name(enDocument);
 
 				action.accept(new State(name,
-		        String.join(", ",
-		            listeDesCapitalesDuMonde.capitalNamesForWikipediaCanonicalUrl(canonicalUrl).collect(toList())),
+		        listeDesCapitalesDuMonde.capitalNamesForWikipediaCanonicalUrl(canonicalUrl).collect(joining(", ")),
 		        map(enName, document, enDocument, fileName), flag(document, fileName), gentile(document),
 		        internetDomain(document), enName));
 			}
@@ -116,7 +115,7 @@ public class ListeDesPaysDuMonde {
 			url = new URL(cache.get(document.select("a[title=Drapeau]").get(0).absUrl("href")).select("div.fullMedia a")
 			    .get(0).absUrl("href"));
 		} catch (MalformedURLException e) {
-			throw new RuntimeException("invalid flag URL", e);
+			throw new RuntimeException(format("invalid flag URL for '%s'", fileName), e);
 		}
 
 		final String fullFileName = format("Drapeau-pays_%s.svg", fileName);
