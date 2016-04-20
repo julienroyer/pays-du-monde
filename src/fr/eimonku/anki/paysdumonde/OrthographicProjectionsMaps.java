@@ -18,6 +18,10 @@ public class OrthographicProjectionsMaps {
 	private static final Pattern NAME_PATTERN = Pattern.compile("The ");
 
 	public String mapForDocumentAndEnName(String enName, Document frDocument, Document enDocument) {
+		if ("Australia".equals(enName)) {
+			return "https://commons.wikimedia.org/wiki/File:Australia_(orthographic_projection).svg";
+		}
+
 		{
 			final String cleanName = NAME_PATTERN.matcher(enName).replaceAll("");
 			final Elements els = this.document.select(format("div.gallerytext:has(p:contains(%s))", cleanName));
