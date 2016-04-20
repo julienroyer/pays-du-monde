@@ -34,10 +34,18 @@ public class OrthographicProjectionsMaps {
 		}
 
 		switch (enName) {
-		case "Malta":
-			return "https://commons.wikimedia.org/wiki/File:EU-Malta.svg";
 		case "Andorra":
 			return "https://commons.wikimedia.org/wiki/File:Andorra_in_Europe_(zoomed).svg";
+		case "Bahrain":
+			return "https://en.wikipedia.org/wiki/File:Bahrain_on_the_globe_(Afro-Eurasia_centered).svg";
+		case "Belize":
+			return "https://commons.wikimedia.org/wiki/File:Belize_on_the_globe_(Americas_centered).svg";
+		case "Malta":
+			return "https://commons.wikimedia.org/wiki/File:EU-Malta.svg";
+		case "Myanmar":
+			return "https://commons.wikimedia.org/wiki/File:Location_Burma_(Myanmar)_ASEAN.svg";
+		case "Vatican City":
+			return "https://commons.wikimedia.org/wiki/File:Locator_map_of_Vatican_City.svg";
 		}
 
 		final Elements els = frDocument.select("div.images a[href*=Fichier]");

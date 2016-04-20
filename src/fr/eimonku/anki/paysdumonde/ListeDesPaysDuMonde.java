@@ -89,12 +89,12 @@ public class ListeDesPaysDuMonde {
 
 	private String map(String enName, Document frDocument, Document enDocument, String fileName) {
 		return media(cache.get(orthographicProjectionsMaps.mapForDocumentAndEnName(enName, frDocument, enDocument))
-		    .select("div.fullMedia a").first().absUrl("href"), "Carte-pays_" + fileName);
+		    .select("div.fullMedia a").first().absUrl("href"), format("Carte-pays_%s.svg", fileName));
 	}
 
 	private String flag(Document document, String fileName) {
 		return media(cache.get(document.select("a[title=Drapeau]").first().absUrl("href")).select("div.fullMedia a").first()
-		    .absUrl("href"), "Drapeau-pays_" + fileName);
+		    .absUrl("href"), format("Drapeau-pays_%s.svg", fileName));
 	}
 
 	private String media(String urlStr, String fileName) {
@@ -105,9 +105,7 @@ public class ListeDesPaysDuMonde {
 			throw new RuntimeException(format("invalid URL '%s'", urlStr), e);
 		}
 
-		final String fullFileName = format("%s.%s", fileName, url.getPath().endsWith(".png") ? "png" : "svg");
-
-		final Path mediaPath = mediaDir.resolve(fullFileName);
+		final Path mediaPath = mediaDir.resolve(fileName);
 		if (!isReadable(mediaPath)) {
 			for (int i = 1; true; ++i) {
 				try (InputStream in = url.openStream()) {
@@ -127,7 +125,7 @@ public class ListeDesPaysDuMonde {
 			}
 		}
 
-		return format("<img src=\"%s\" />", fullFileName);
+		return format("<img src=\"%s\" />", fileName);
 	}
 
 	private static String gentile(Document document) {
