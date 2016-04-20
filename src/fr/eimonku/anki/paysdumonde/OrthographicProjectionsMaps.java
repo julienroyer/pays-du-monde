@@ -33,8 +33,11 @@ public class OrthographicProjectionsMaps {
 			}
 		}
 
-		if ("Malta".equals(enName)) {
+		switch (enName) {
+		case "Malta":
 			return "https://commons.wikimedia.org/wiki/File:EU-Malta.svg";
+		case "Andorra":
+			return "https://commons.wikimedia.org/wiki/File:Andorra_in_Europe_(zoomed).svg";
 		}
 
 		final Elements els = frDocument.select("div.images a[href*=Fichier]");
