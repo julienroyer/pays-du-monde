@@ -40,10 +40,18 @@ public class OrthographicProjectionsMaps {
 			return "https://en.wikipedia.org/wiki/File:Bahrain_on_the_globe_(Afro-Eurasia_centered).svg";
 		case "Belize":
 			return "https://commons.wikimedia.org/wiki/File:Belize_on_the_globe_(Americas_centered).svg";
+		case "Liechtenstein":
+			return "https://commons.wikimedia.org/wiki/File:Liechtenstein_in_Europe_(zoomed).svg";
 		case "Malta":
 			return "https://commons.wikimedia.org/wiki/File:EU-Malta.svg";
+		case "Moldova":
+			return "https://commons.wikimedia.org/wiki/File:Locator_map_of_Moldova.svg";
+		case "Monaco":
+			return "https://commons.wikimedia.org/wiki/File:Locator_map_of_Monaco.svg";
 		case "Myanmar":
 			return "https://commons.wikimedia.org/wiki/File:Location_Burma_(Myanmar)_ASEAN.svg";
+		case "San Marino":
+			return "https://commons.wikimedia.org/wiki/File:San_Marino_in_Europe_(zoomed).svg";
 		case "Swaziland":
 			return "https://commons.wikimedia.org/wiki/File:Swaziland_on_the_globe_(special_marker)_(Madagascar_centered).svg";
 		case "Togo":
