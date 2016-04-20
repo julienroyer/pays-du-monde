@@ -70,13 +70,13 @@ public class ListeDesPaysDuMonde {
 		table.children().select("tbody").forEach(tbody -> tbody.children().select("tr").forEach(tr -> {
 			final Element td = tr.child(1);
 			if ("td".equals(td.tagName())) {
-				final Document document = cache.get(td.children().select("a").get(0).absUrl("href"));
+				final Document document = cache.get(td.children().select("a").first().absUrl("href"));
 				final String canonicalUrl = document.baseUri();
 				final String name = name(document);
 				final String fileName = NAME_REPLACE_PATTERN.matcher(name).replaceAll("-");
 
 				final Document enDocument = cache.get("France".equals(name) ? "https://en.wikipedia.org/wiki/France"
-		        : document.select("li.interwiki-en a").get(0).absUrl("href"));
+		        : document.select("li.interwiki-en a").first().absUrl("href"));
 				final String enName = name(enDocument);
 
 				action.accept(new State(name,
@@ -89,11 +89,11 @@ public class ListeDesPaysDuMonde {
 
 	private String map(String enName, Document frDocument, Document enDocument, String fileName) {
 		return media(cache.get(orthographicProjectionsMaps.mapForDocumentAndEnName(enName, frDocument, enDocument))
-		    .select("div.fullMedia a").get(0).absUrl("href"), "Carte-pays_" + fileName);
+		    .select("div.fullMedia a").first().absUrl("href"), "Carte-pays_" + fileName);
 	}
 
 	private String flag(Document document, String fileName) {
-		return media(cache.get(document.select("a[title=Drapeau]").get(0).absUrl("href")).select("div.fullMedia a").get(0)
+		return media(cache.get(document.select("a[title=Drapeau]").first().absUrl("href")).select("div.fullMedia a").first()
 		    .absUrl("href"), "Drapeau-pays_" + fileName);
 	}
 
@@ -118,7 +118,7 @@ public class ListeDesPaysDuMonde {
 						throw new RuntimeException(format("unable to copy '%s' to '%s'", url, mediaPath), e);
 					} else {
 						try {
-							sleep(i * i * 500);
+							sleep(i * i * 1_000);
 						} catch (InterruptedException e1) {
 							throw new RuntimeException("interrupted", e1);
 						}
@@ -132,11 +132,11 @@ public class ListeDesPaysDuMonde {
 
 	private static String gentile(Document document) {
 		final Elements els = document.select("th:has(a[href=/wiki/Gentil%C3%A9])+td");
-		return !els.isEmpty() ? text(els.get(0)) : "";
+		return !els.isEmpty() ? text(els.first()) : "";
 	}
 
 	private static String internetDomain(Document document) {
-		return text(document.select("th:has(a[href=/wiki/Domaine_de_premier_niveau])+td").get(0));
+		return text(document.select("th:has(a[href=/wiki/Domaine_de_premier_niveau])+td").first());
 	}
 
 	private static final Pattern STATE_NAME_PATTERN = compile("([^(]+)(?: \\([^)]+\\))?");
