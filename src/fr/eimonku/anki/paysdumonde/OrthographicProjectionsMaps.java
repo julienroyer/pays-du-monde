@@ -44,6 +44,12 @@ public class OrthographicProjectionsMaps {
 			return "https://commons.wikimedia.org/wiki/File:EU-Malta.svg";
 		case "Myanmar":
 			return "https://commons.wikimedia.org/wiki/File:Location_Burma_(Myanmar)_ASEAN.svg";
+		case "Swaziland":
+			return "https://commons.wikimedia.org/wiki/File:Swaziland_on_the_globe_(special_marker)_(Madagascar_centered).svg";
+		case "Togo":
+			return "https://commons.wikimedia.org/wiki/File:Togo_on_the_globe_(Africa_centered).svg";
+		case "Turkmenistan":
+			return "https://en.wikipedia.org/wiki/File:Turkmenistan_on_the_globe_(Eurasia_centered).svg";
 		case "Vatican City":
 			return "https://commons.wikimedia.org/wiki/File:Locator_map_of_Vatican_City.svg";
 		}
