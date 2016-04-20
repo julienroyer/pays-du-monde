@@ -33,6 +33,10 @@ public class OrthographicProjectionsMaps {
 			}
 		}
 
+		if ("Malta".equals(enName)) {
+			return "https://commons.wikimedia.org/wiki/File:EU-Malta.svg";
+		}
+
 		final Elements els = frDocument.select("div.images a[href*=Fichier]");
 		if (!els.isEmpty()) {
 			return els.first().absUrl("href");
