@@ -110,7 +110,7 @@ public class ListeDesPaysDuMonde {
 		final Path mediaPath = mediaDir.resolve(fileName);
 		if (!isReadable(mediaPath)) {
 			for (int i = 1; true; ++i) {
-				try (InputStream in = url.openStream()) {
+				try (final InputStream in = url.openStream()) {
 					copy(in, mediaPath);
 					break;
 				} catch (IOException e) {

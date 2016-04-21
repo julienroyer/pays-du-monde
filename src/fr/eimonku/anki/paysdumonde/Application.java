@@ -12,10 +12,10 @@ import fr.eimonku.wikimedia.WikimediaCache;
 
 // TODO use png files for maps (and flags?)
 // TODO write result to file
-// TODO use Streams for JSON
 // TODO enCapitals, enGentile?
-// TODO cloze map + region in globe
+// TODO cloze map + region on globe
 // TODO clean OrthographicProjectionsMaps
+// TODO clean gentile
 public class Application {
 	public static void main(String... args) {
 		final Path mediaDir = Paths.get(args[0]), cacheDir = Paths.get(args[1]);
