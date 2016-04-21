@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import org.apache.logging.log4j.Logger;
 import org.jsoup.Connection.Response;
@@ -106,11 +107,13 @@ public class WikimediaCache {
 			new JsonReader(r).readMap((idStr, properties) -> {
 				final long id = parseLong(idStr);
 				final CachedDocument document = cachedDocument(id, (Map<?, ?>) properties);
-				documentsByIds.put(id, document);
+				if (documentsByIds.putIfAbsent(id, document) != null) {
+					throw new RuntimeException(format("properties file: duplicate id %s", id));
+				}
 				nextId = max(nextId, id + 1);
 
 				if (idsByUrls.putIfAbsent(document.baseUri, id) != null) {
-					throw new RuntimeException(format("duplicate URI '%s'", document.baseUri));
+					throw new RuntimeException(format("properties file: duplicate baseUri '%s'", document.baseUri));
 				}
 			});
 		} catch (NoSuchFileException e) {
@@ -122,13 +125,15 @@ public class WikimediaCache {
 
 	private void readIdsFile() {
 		try (final Reader r = newBufferedReader(idsPath())) {
-			new JsonReader(r).readMap((url, v) -> {
-				final long id = (Long) v;
+			new JsonReader(r).readMap((url, idStr) -> {
+				final long id = (Long) idStr;
 				if (!documentsByIds.containsKey(id)) {
-					throw new RuntimeException(format("invalid id %s", id));
+					throw new RuntimeException(format("ids file: invalid id %s", id));
 				}
 
-				idsByUrls.put(url, id);
+				if (idsByUrls.putIfAbsent(url, id) != null) {
+					throw new RuntimeException(format("ids file: duplicate url '%s'", url));
+				}
 			});
 		} catch (NoSuchFileException e) {
 			logger.warn("no ids file");
@@ -141,7 +146,33 @@ public class WikimediaCache {
 		idsByUrls.put(url, id);
 
 		try (Writer w = newBufferedWriter(idsPath())) {
-			new JsonWriter(w, 0).appendMap(idsByUrls);
+			new JsonWriter(w, 0).appendMap(new Iterator<Entry<String, Long>>() {
+				final Iterator<Entry<String, Long>> it = idsByUrls.entrySet().iterator();
+				Entry<String, Long> next;
+
+				@Override
+				public boolean hasNext() {
+					while (next == null && it.hasNext()) {
+						final Entry<String, Long> next = it.next();
+						if (!documentsByIds.get(next.getValue()).baseUri.equals(next.getKey())) {
+							this.next = next;
+						}
+					}
+
+					return next != null;
+				}
+
+				@Override
+				public Entry<String, Long> next() {
+					if (!hasNext()) {
+						throw new NoSuchElementException();
+					}
+
+					final Entry<String, Long> next = this.next;
+					this.next = null;
+					return next;
+				}
+			});
 		} catch (IOException e) {
 			throw new RuntimeException("unable to write ids file", e);
 		}
