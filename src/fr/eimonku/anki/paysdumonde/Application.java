@@ -10,7 +10,12 @@ import java.util.stream.Stream;
 
 import fr.eimonku.wikimedia.WikimediaCache;
 
-// TODO use png files for maps
+// TODO use png files for maps (and flags?)
+// TODO write result to file
+// TODO use Streams for JSON
+// TODO enCapitals, enGentile?
+// TODO cloze map + region in globe
+// TODO clean OrthographicProjectionsMaps
 public class Application {
 	public static void main(String... args) {
 		final Path mediaDir = Paths.get(args[0]), cacheDir = Paths.get(args[1]);
