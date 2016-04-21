@@ -1,9 +1,11 @@
 package fr.eimonku.anki.paysdumonde;
 
 import static java.lang.String.format;
-import static java.lang.System.out;
 import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.newBufferedWriter;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
@@ -11,15 +13,14 @@ import java.util.stream.Stream;
 import fr.eimonku.wikimedia.WikimediaCache;
 
 // TODO use png files for maps (and flags?)
-// TODO write result to file
 // TODO enCapitals, enGentile?
 // TODO cloze map + region on globe
 // TODO clean OrthographicProjectionsMaps
-// TODO clean gentile
+// TODO clean gentile and Internet domain
 public class Application {
-	public static void main(String... args) {
-		final Path mediaDir = Paths.get(args[0]), cacheDir = Paths.get(args[1]);
-		Stream.of(mediaDir, cacheDir).forEach(dir -> {
+	public static void main(String... args) throws IOException {
+		final Path resultFile = Paths.get(args[0]), mediaDir = Paths.get(args[1]), cacheDir = Paths.get(args[2]);
+		Stream.of(resultFile.toAbsolutePath().getParent(), mediaDir, cacheDir).forEach(dir -> {
 			try {
 				createDirectories(dir);
 			} catch (Exception e) {
@@ -27,22 +28,20 @@ public class Application {
 			}
 		});
 
-		new ListeDesPaysDuMonde(mediaDir, new WikimediaCache(cacheDir)).forEach(state -> {
-			out.print(state.name);
-			out.print(';');
-			out.print(state.capitals);
-			out.print(';');
-			out.print(state.map);
-			out.print(';');
-			out.print(state.flag);
-			out.print(';');
-			out.print(state.gentile);
-			out.print(';');
-			out.print(state.internetDomain);
-			out.print(';');
-			out.print(state.enName);
-
-			out.println();
-		});
+		try (final Writer w = newBufferedWriter(resultFile)) {
+			new ListeDesPaysDuMonde(mediaDir, new WikimediaCache(cacheDir)).forEach(state -> {
+				try {
+					w.append(state.name).append(';');
+					w.append(state.capitals).append(';');
+					w.append(state.map).append(';');
+					w.append(state.flag).append(';');
+					w.append(state.gentile).append(';');
+					w.append(state.internetDomain).append(';');
+					w.append(state.enName).append('\n');
+				} catch (IOException e) {
+					throw new RuntimeException(format("unable to write to '%s'", resultFile), e);
+				}
+			});
+		}
 	}
 }
