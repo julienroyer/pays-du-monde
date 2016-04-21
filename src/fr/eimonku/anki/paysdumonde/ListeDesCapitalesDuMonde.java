@@ -16,11 +16,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 
+import fr.eimonku.wikimedia.WikimediaCache;
+
 public class ListeDesCapitalesDuMonde {
-	private final WikipediaCache cache;
+	private final WikimediaCache cache;
 	private final Map<String, SortedSet<String>> capitalNamesByWikipediaCanonicalUrls = new HashMap<>();
 
-	public ListeDesCapitalesDuMonde(WikipediaCache cache) {
+	public ListeDesCapitalesDuMonde(WikimediaCache cache) {
 		this.cache = cache;
 
 		final Element table = cache.get("https://fr.wikipedia.org/wiki/Liste_des_capitales_du_monde")

@@ -1,4 +1,4 @@
-package fr.eimonku.anki.paysdumonde;
+package fr.eimonku.wikimedia;
 
 import static java.lang.Long.max;
 import static java.lang.Long.parseLong;
@@ -35,49 +35,19 @@ import fr.eimonku.json.JsonReader;
 import fr.eimonku.json.JsonReader.InvalidJsonException;
 import fr.eimonku.json.JsonWriter;
 
-public class WikipediaCache {
+public class WikimediaCache {
 	private static final Logger logger = getLogger();
 	private static final String IDS_FILE_NAME = "ids.json", PROPERTIES_FILE_NAME = "properties.json";
 
-	private final Path cacheDir;
-	private final Map<String, Long> idsByUrls = new LinkedHashMap<>();
+	private final Path dir;
 	private final Map<Long, CachedDocument> documentsByIds = new LinkedHashMap<>();
+	private final Map<String, Long> idsByUrls = new LinkedHashMap<>();
 	private long nextId = 0;
 
-	public WikipediaCache(Path cacheDir) {
-		this.cacheDir = cacheDir;
-
-		try (final Reader r = newBufferedReader(propertiesPath())) {
-			new JsonReader(r).readMap((k, properties) -> {
-				final long id = parseLong(k);
-				final CachedDocument document = cachedDocument(id, (Map<?, ?>) properties);
-				documentsByIds.put(id, document);
-				nextId = max(nextId, id + 1);
-
-				if (idsByUrls.putIfAbsent(document.baseUri, id) != null) {
-					throw new RuntimeException(format("duplicate URI '%s'", document.baseUri));
-				}
-			});
-		} catch (NoSuchFileException e) {
-			logger.warn("no properties file");
-		} catch (IOException | InvalidJsonException e) {
-			throw new RuntimeException("unable to read properties file", e);
-		}
-
-		try (final Reader r = newBufferedReader(idsPath())) {
-			new JsonReader(r).readMap((url, v) -> {
-				final long id = (Long) v;
-				if (!documentsByIds.containsKey(id)) {
-					throw new RuntimeException(format("invalid id %s", id));
-				}
-
-				idsByUrls.put(url, id);
-			});
-		} catch (NoSuchFileException e) {
-			logger.warn("no ids file");
-		} catch (IOException | InvalidJsonException e) {
-			throw new RuntimeException("unable to read ids file", e);
-		}
+	public WikimediaCache(Path dir) {
+		this.dir = dir;
+		readPropertiesFile();
+		readIdsFile();
 	}
 
 	public Document get(String url) {
@@ -92,9 +62,8 @@ public class WikipediaCache {
 		Document document;
 		for (int i = 1; true; ++i) {
 			try {
-				response = Jsoup.connect(url).execute();
+				response = Jsoup.connect(url).maxBodySize(0).execute();
 				document = response.parse();
-
 				break;
 			} catch (SocketTimeoutException e) {
 				if (i >= 3) {
@@ -130,6 +99,42 @@ public class WikipediaCache {
 		addId(url, id);
 
 		return document;
+	}
+
+	private void readPropertiesFile() {
+		try (final Reader r = newBufferedReader(propertiesPath())) {
+			new JsonReader(r).readMap((idStr, properties) -> {
+				final long id = parseLong(idStr);
+				final CachedDocument document = cachedDocument(id, (Map<?, ?>) properties);
+				documentsByIds.put(id, document);
+				nextId = max(nextId, id + 1);
+
+				if (idsByUrls.putIfAbsent(document.baseUri, id) != null) {
+					throw new RuntimeException(format("duplicate URI '%s'", document.baseUri));
+				}
+			});
+		} catch (NoSuchFileException e) {
+			logger.warn("no properties file");
+		} catch (IOException | InvalidJsonException e) {
+			throw new RuntimeException("unable to read properties file", e);
+		}
+	}
+
+	private void readIdsFile() {
+		try (final Reader r = newBufferedReader(idsPath())) {
+			new JsonReader(r).readMap((url, v) -> {
+				final long id = (Long) v;
+				if (!documentsByIds.containsKey(id)) {
+					throw new RuntimeException(format("invalid id %s", id));
+				}
+
+				idsByUrls.put(url, id);
+			});
+		} catch (NoSuchFileException e) {
+			logger.warn("no ids file");
+		} catch (IOException | InvalidJsonException e) {
+			throw new RuntimeException("unable to read ids file", e);
+		}
 	}
 
 	private void addId(String url, long id) {
@@ -173,27 +178,27 @@ public class WikipediaCache {
 		try (final InputStream is = new BufferedInputStream(newInputStream(cachedDocumentPath(id)))) {
 			return new CachedDocument(Jsoup.parse(is, charsetName, baseUri), charsetName, baseUri);
 		} catch (IOException e) {
-			throw new RuntimeException(format("unable to read cached document %s", properties), e);
+			throw new RuntimeException(format("unable to read cached document %s", id), e);
 		}
 	}
 
-	private Path idsPath() {
-		return cacheDir.resolve(IDS_FILE_NAME);
+	private Path propertiesPath() {
+		return dir.resolve(PROPERTIES_FILE_NAME);
 	}
 
-	private Path propertiesPath() {
-		return cacheDir.resolve(PROPERTIES_FILE_NAME);
+	private Path idsPath() {
+		return dir.resolve(IDS_FILE_NAME);
 	}
 
 	private Path cachedDocumentPath(long id) {
-		return cacheDir.resolve(format("cache_%06d.html", id));
+		return dir.resolve(format("cache_%07d.html", id));
 	}
 
 	private static class CachedDocument {
 		final Document document;
 		final String charsetName, baseUri;
 
-		public CachedDocument(Document document, String charsetName, String baseUri) {
+		CachedDocument(Document document, String charsetName, String baseUri) {
 			this.document = document;
 			this.charsetName = charsetName;
 			this.baseUri = baseUri;

@@ -28,13 +28,15 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
+import fr.eimonku.wikimedia.WikimediaCache;
+
 public class ListeDesPaysDuMonde {
 	private final Path mediaDir;
-	private final WikipediaCache cache;
+	private final WikimediaCache cache;
 	private final ListeDesCapitalesDuMonde listeDesCapitalesDuMonde;
 	private final OrthographicProjectionsMaps orthographicProjectionsMaps;
 
-	public ListeDesPaysDuMonde(Path mediaDir, WikipediaCache cache) {
+	public ListeDesPaysDuMonde(Path mediaDir, WikimediaCache cache) {
 		this.mediaDir = mediaDir;
 		this.cache = cache;
 		listeDesCapitalesDuMonde = new ListeDesCapitalesDuMonde(cache);
@@ -64,25 +66,25 @@ public class ListeDesPaysDuMonde {
 		states.values().forEach(action);
 	}
 
-	private static Pattern NAME_REPLACE_PATTERN = compile("[^a-zA-Z]+");
+	private static Pattern FILE_NAME_REPLACE_PATTERN = compile("[^a-zA-Z]+");
 
 	private void processTable(Element table, Consumer<State> action) {
 		table.children().select("tbody").forEach(tbody -> tbody.children().select("tr").forEach(tr -> {
 			final Element td = tr.child(1);
 			if ("td".equals(td.tagName())) {
 				final Document document = cache.get(td.children().select("a").first().absUrl("href"));
-				final String canonicalUrl = document.baseUri();
 				final String name = name(document);
-				final String fileName = NAME_REPLACE_PATTERN.matcher(name).replaceAll("-");
+				final String fileName = FILE_NAME_REPLACE_PATTERN.matcher(name).replaceAll("-");
 
-				final Document enDocument = cache.get("France".equals(name) ? "https://en.wikipedia.org/wiki/France"
-		        : document.select("li.interwiki-en a").first().absUrl("href"));
+				final Document enDocument = cache.get(document.select("li.interwiki-en a").first().absUrl("href"));
 				final String enName = name(enDocument);
 
-				action.accept(new State(name,
-		        listeDesCapitalesDuMonde.capitalNamesForWikipediaCanonicalUrl(canonicalUrl).collect(joining(", ")),
-		        map(enName, document, enDocument, fileName), flag(document, fileName), gentile(document),
-		        internetDomain(document), enName));
+				action
+		        .accept(new State(name,
+		            listeDesCapitalesDuMonde.capitalNamesForWikipediaCanonicalUrl(document.baseUri())
+		                .collect(joining(", ")),
+		            map(enName, document, enDocument, fileName), flag(document, fileName), gentile(document),
+		            internetDomain(document), enName));
 			}
 		}));
 	}

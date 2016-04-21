@@ -8,10 +8,12 @@ import java.util.regex.Pattern;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import fr.eimonku.wikimedia.WikimediaCache;
+
 public class OrthographicProjectionsMaps {
 	final Document document;
 
-	public OrthographicProjectionsMaps(WikipediaCache cache) {
+	public OrthographicProjectionsMaps(WikimediaCache cache) {
 		document = cache.get("https://commons.wikimedia.org/wiki/Grey-green_orthographic_projections_maps");
 	}
 
