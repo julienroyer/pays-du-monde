@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 
 import org.apache.logging.log4j.Logger;
 import org.jsoup.Connection.Response;
@@ -164,10 +163,7 @@ public class WikimediaCache {
 
 				@Override
 				public Entry<String, Long> next() {
-					if (!hasNext()) {
-						throw new NoSuchElementException();
-					}
-
+					hasNext();
 					final Entry<String, Long> next = this.next;
 					this.next = null;
 					return next;
