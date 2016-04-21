@@ -105,10 +105,15 @@ public class WikimediaCache {
 		try (final Reader r = newBufferedReader(propertiesPath())) {
 			new JsonReader(r).readMap((idStr, properties) -> {
 				final long id = parseLong(idStr);
+				if (id < 0) {
+					throw new RuntimeException(format("properties file: invalid id %s", id));
+				}
+
 				final CachedDocument document = cachedDocument(id, (Map<?, ?>) properties);
 				if (documentsByIds.putIfAbsent(id, document) != null) {
 					throw new RuntimeException(format("properties file: duplicate id %s", id));
 				}
+
 				nextId = max(nextId, id + 1);
 
 				if (idsByUrls.putIfAbsent(document.baseUri, id) != null) {
