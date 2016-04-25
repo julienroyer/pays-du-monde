@@ -5,6 +5,8 @@ import static java.lang.String.format;
 import static java.lang.Thread.sleep;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.isReadable;
+import static java.text.Normalizer.normalize;
+import static java.text.Normalizer.Form.NFD;
 import static java.util.Locale.FRENCH;
 import static java.util.regex.Pattern.compile;
 import static java.util.stream.Collectors.joining;
@@ -66,15 +68,13 @@ public class ListeDesPaysDuMonde {
 		states.values().forEach(action);
 	}
 
-	private static Pattern FILE_NAME_REPLACE_PATTERN = compile("[^a-zA-Z]+");
-
 	private void processTable(Element table, Consumer<State> action) {
 		table.children().select("tbody").forEach(tbody -> tbody.children().select("tr").forEach(tr -> {
 			final Element td = tr.child(1);
 			if ("td".equals(td.tagName())) {
 				final Document document = cache.get(td.children().select("a").first().absUrl("href"));
 				final String name = name(document);
-				final String fileName = FILE_NAME_REPLACE_PATTERN.matcher(name).replaceAll("-");
+				final String fileName = fileName(name);
 
 				final Document enDocument = cache.get(document.select("li.interwiki-en a").first().absUrl("href"));
 				final String enName = name(enDocument);
@@ -158,10 +158,12 @@ public class ListeDesPaysDuMonde {
 		return m.matches() ? Optional.of(parseInt(m.group(1))) : Optional.empty();
 	}
 
+	private static Pattern TEXT_REPLACE_PATTERN = compile("\\s+");
+
 	private static String text(Element el) {
 		final StringBuilder sb = new StringBuilder();
 		appendText(el, sb);
-		return sb.toString();
+		return TEXT_REPLACE_PATTERN.matcher(sb.toString()).replaceAll(" ").trim();
 	}
 
 	private static void appendText(Node n, StringBuilder sb) {
@@ -177,5 +179,11 @@ public class ListeDesPaysDuMonde {
 				}
 			}
 		}
+	}
+
+	private static Pattern FILE_NAME_REPLACE_PATTERN = compile("[^a-zA-Z]");
+
+	private static String fileName(String name) {
+		return FILE_NAME_REPLACE_PATTERN.matcher(normalize(name, NFD)).replaceAll("");
 	}
 }

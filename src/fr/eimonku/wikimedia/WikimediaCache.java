@@ -20,7 +20,7 @@ import java.io.Writer;
 import java.net.SocketTimeoutException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -197,7 +197,7 @@ public class WikimediaCache {
 					final Map<String, String> properties = new LinkedHashMap<>();
 					properties.put("charsetName", entry.getValue().charsetName);
 					properties.put("baseUri", entry.getValue().baseUri);
-					return new AbstractMap.SimpleEntry<>(entry.getKey(), properties);
+					return new SimpleEntry<>(entry.getKey(), properties);
 				}
 			});
 		} catch (IOException e) {

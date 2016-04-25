@@ -55,13 +55,13 @@ public class ListeDesCapitalesDuMonde {
 		}));
 	}
 
-	private static final Pattern NAME_PATTERN = compile("\\(capitale ([^)]+)\\)");
+	private static final Pattern NAME_PATTERN = compile("\\(capitale ([^)]+)\\)"), TEXT_REPLACE_PATTERN = compile("\\s+");
 
 	private static String fullName(Element td) {
 		final StringBuilder sb = new StringBuilder();
 		appendText(td, sb);
 
-		return NAME_PATTERN.matcher(sb).replaceFirst("($1)");
+		return TEXT_REPLACE_PATTERN.matcher(NAME_PATTERN.matcher(sb).replaceFirst("($1)")).replaceAll(" ").trim();
 	}
 
 	private static void appendText(Node n, StringBuilder sb) {
