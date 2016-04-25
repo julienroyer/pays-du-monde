@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import fr.eimonku.wikimedia.WikimediaCache;
 
 // TODO use png files for maps (and flags?)
+// TODO fix pb with large files
 // TODO enCapitals, enGentile?
 // TODO cloze map + region on globe
 // TODO clean OrthographicProjectionsMaps
