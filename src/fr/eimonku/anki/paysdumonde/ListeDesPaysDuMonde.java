@@ -158,12 +158,12 @@ public class ListeDesPaysDuMonde {
 		return m.matches() ? Optional.of(parseInt(m.group(1))) : Optional.empty();
 	}
 
-	private static Pattern TEXT_REPLACE_PATTERN = compile("\\s+");
+	private static Pattern TEXT_REPLACE_PATTERN = compile("\\s+"), SLASH_P_PATTERN = compile("/ \\(");
 
 	private static String text(Element el) {
 		final StringBuilder sb = new StringBuilder();
 		appendText(el, sb);
-		return TEXT_REPLACE_PATTERN.matcher(sb.toString()).replaceAll(" ").trim();
+		return SLASH_P_PATTERN.matcher(TEXT_REPLACE_PATTERN.matcher(sb.toString()).replaceAll(" ").trim()).replaceAll("(");
 	}
 
 	private static void appendText(Node n, StringBuilder sb) {
