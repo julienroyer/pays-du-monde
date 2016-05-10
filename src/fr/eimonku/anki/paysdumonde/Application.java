@@ -23,7 +23,7 @@ public class Application {
 		Stream.of(resultFile.toAbsolutePath().getParent(), mediaDir, cacheDir).forEach(dir -> {
 			try {
 				createDirectories(dir);
-			} catch (Exception e) {
+			} catch (IOException e) {
 				throw new RuntimeException(format("unable to create directory '%s'", dir), e);
 			}
 		});
