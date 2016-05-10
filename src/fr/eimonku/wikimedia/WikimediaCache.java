@@ -3,11 +3,13 @@ package fr.eimonku.wikimedia;
 import static java.lang.Long.max;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
+import static java.lang.Thread.currentThread;
 import static java.lang.Thread.sleep;
 import static java.nio.file.Files.newBufferedReader;
 import static java.nio.file.Files.newBufferedWriter;
 import static java.nio.file.Files.newInputStream;
 import static java.nio.file.Files.newOutputStream;
+import static java.util.Objects.requireNonNull;
 import static org.apache.logging.log4j.LogManager.getLogger;
 
 import java.io.BufferedInputStream;
@@ -45,7 +47,8 @@ public class WikimediaCache {
 	private long nextId = 0;
 
 	public WikimediaCache(Path dir) {
-		this.dir = dir;
+		this.dir = requireNonNull(dir, "dir");
+
 		readPropertiesFile();
 		readIdsFile();
 	}
@@ -72,6 +75,7 @@ public class WikimediaCache {
 					try {
 						sleep(i * i * 1_000);
 					} catch (InterruptedException e1) {
+						currentThread().interrupt();
 						throw new RuntimeException("interrupted", e1);
 					}
 				}
@@ -121,7 +125,7 @@ public class WikimediaCache {
 				}
 			});
 		} catch (NoSuchFileException e) {
-			logger.warn("no properties file");
+			logger.warn("No properties file");
 		} catch (IOException | InvalidJsonException e) {
 			throw new RuntimeException("unable to read properties file", e);
 		}
@@ -129,8 +133,8 @@ public class WikimediaCache {
 
 	private void readIdsFile() {
 		try (final Reader r = newBufferedReader(idsPath())) {
-			new JsonReader(r).readMap((url, idStr) -> {
-				final long id = (Long) idStr;
+			new JsonReader(r).readMap((url, idObj) -> {
+				final long id = (Long) idObj;
 				if (!documentsByIds.containsKey(id)) {
 					throw new RuntimeException(format("ids file: invalid id %s", id));
 				}
@@ -140,7 +144,7 @@ public class WikimediaCache {
 				}
 			});
 		} catch (NoSuchFileException e) {
-			logger.warn("no ids file");
+			logger.warn("No ids file");
 		} catch (IOException | InvalidJsonException e) {
 			throw new RuntimeException("unable to read ids file", e);
 		}
