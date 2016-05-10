@@ -12,6 +12,7 @@ import static java.util.Locale.FRENCH;
 import static java.util.regex.Pattern.compile;
 import static java.util.stream.Collectors.joining;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -111,7 +112,7 @@ public class ListeDesPaysDuMonde {
 		final Path mediaPath = mediaDir.resolve(fileName);
 		if (!isReadable(mediaPath)) {
 			for (int i = 1; true; ++i) {
-				try (final InputStream in = url.openStream()) {
+				try (final InputStream in = new BufferedInputStream(url.openStream())) {
 					copy(in, mediaPath);
 					break;
 				} catch (IOException e) {
