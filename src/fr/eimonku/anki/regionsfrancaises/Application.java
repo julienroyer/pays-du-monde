@@ -1,4 +1,4 @@
-package fr.eimonku.anki.regionsmetropolitainesfrancaises;
+package fr.eimonku.anki.regionsfrancaises;
 
 import static fr.eimonku.anki.AnkiApplication.ankiApplication;
 

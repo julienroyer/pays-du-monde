@@ -1,5 +1,5 @@
 /bin/
 /cache/
 /media/
-/pays-du-monde.csv
+/*.csv
 .DS_Store
