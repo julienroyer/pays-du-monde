@@ -2,6 +2,7 @@ package fr.eimonku.anki.paysdumonde;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static java.lang.Thread.currentThread;
 import static java.lang.Thread.sleep;
 import static java.nio.file.Files.copy;
 import static java.nio.file.Files.isReadable;
@@ -120,6 +121,7 @@ public class ListeDesPaysDuMonde {
 						try {
 							sleep(i * i * 1_000);
 						} catch (InterruptedException e1) {
+							currentThread().interrupt();
 							throw new RuntimeException("interrupted", e1);
 						}
 					}
