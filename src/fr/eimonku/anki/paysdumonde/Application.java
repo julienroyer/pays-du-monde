@@ -8,6 +8,7 @@ import java.io.IOException;
 // TODO fix pb with large files
 // TODO enCapitals, enGentile?
 // TODO cloze map + region on globe
+// https://commons.wikimedia.org/wiki/Category:SVG_locator_maps_(location_map_scheme)
 // TODO clean OrthographicProjectionsMaps
 public class Application {
 	public static void main(String... args) throws IOException {
