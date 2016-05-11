@@ -5,7 +5,6 @@ import static fr.eimonku.anki.AnkiApplication.ankiApplication;
 import java.io.IOException;
 
 // TODO use png files for maps (and flags?)
-// TODO fix pb with large files
 // TODO enCapitals, enGentile?
 // TODO cloze map + region on globe
 // https://commons.wikimedia.org/wiki/Category:SVG_locator_maps_(location_map_scheme)
