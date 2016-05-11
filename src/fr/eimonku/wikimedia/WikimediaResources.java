@@ -9,9 +9,11 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.zip.GZIPInputStream;
 
 import org.jsoup.nodes.Document;
 
@@ -34,9 +36,13 @@ public class WikimediaResources {
 		final Path mediaPath = dir.resolve(fileName);
 		if (!isReadable(mediaPath)) {
 			for (int i = 1; true; ++i) {
-				try (final InputStream in = url.openStream()) {
-					copy(in, mediaPath);
-					if (in.read() < 0) {
+				try {
+					final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+					connection.setRequestProperty("Accept-Encoding", "gzip");
+
+					try (final InputStream in = "gzip".equals(connection.getContentEncoding())
+					    ? new GZIPInputStream(connection.getInputStream()) : connection.getInputStream()) {
+						copy(in, mediaPath);
 						break;
 					}
 				} catch (IOException e) {
