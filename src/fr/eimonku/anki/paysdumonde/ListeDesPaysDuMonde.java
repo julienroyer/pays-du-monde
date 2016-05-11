@@ -2,22 +2,12 @@ package fr.eimonku.anki.paysdumonde;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
-import static java.lang.Thread.currentThread;
-import static java.lang.Thread.sleep;
-import static java.nio.file.Files.copy;
-import static java.nio.file.Files.isReadable;
 import static java.text.Normalizer.normalize;
 import static java.text.Normalizer.Form.NFD;
 import static java.util.Locale.FRENCH;
 import static java.util.regex.Pattern.compile;
 import static java.util.stream.Collectors.joining;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Path;
 import java.text.Collator;
 import java.util.Optional;
 import java.util.SortedMap;
@@ -33,16 +23,17 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import fr.eimonku.wikimedia.WikimediaCache;
+import fr.eimonku.wikimedia.WikimediaResources;
 
 public class ListeDesPaysDuMonde {
-	private final Path mediaDir;
 	private final WikimediaCache cache;
+	private final WikimediaResources resources;
 	private final ListeDesCapitalesDuMonde listeDesCapitalesDuMonde;
 	private final OrthographicProjectionsMaps orthographicProjectionsMaps;
 
-	public ListeDesPaysDuMonde(Path mediaDir, WikimediaCache cache) {
-		this.mediaDir = mediaDir;
+	public ListeDesPaysDuMonde(WikimediaCache cache, WikimediaResources resources) {
 		this.cache = cache;
+		this.resources = resources;
 		listeDesCapitalesDuMonde = new ListeDesCapitalesDuMonde(cache);
 		orthographicProjectionsMaps = new OrthographicProjectionsMaps(cache);
 	}
@@ -92,44 +83,17 @@ public class ListeDesPaysDuMonde {
 	}
 
 	private String map(String enName, Document frDocument, Document enDocument, String fileName) {
-		return media(cache.get(orthographicProjectionsMaps.mapForDocumentAndEnName(enName, frDocument, enDocument))
-		    .select("div.fullMedia a").first().absUrl("href"), format("Carte-pays_%s.svg", fileName));
+		return svgFile(cache.get(orthographicProjectionsMaps.mapForDocumentAndEnName(enName, frDocument, enDocument)),
+		    format("Carte-pays_%s.svg", fileName));
 	}
 
 	private String flag(Document document, String fileName) {
-		return media(cache.get(document.select("a[title=Drapeau]").first().absUrl("href")).select("div.fullMedia a").first()
-		    .absUrl("href"), format("Drapeau-pays_%s.svg", fileName));
+		return svgFile(cache.get(document.select("a[title=Drapeau]").first().absUrl("href")),
+		    format("Drapeau-pays_%s.svg", fileName));
 	}
 
-	private String media(String urlStr, String fileName) {
-		final URL url;
-		try {
-			url = new URL(urlStr);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(format("invalid URL '%s'", urlStr), e);
-		}
-
-		final Path mediaPath = mediaDir.resolve(fileName);
-		if (!isReadable(mediaPath)) {
-			for (int i = 1; true; ++i) {
-				try (final InputStream in = new BufferedInputStream(url.openStream())) {
-					copy(in, mediaPath);
-					break;
-				} catch (IOException e) {
-					if (i >= 3) {
-						throw new RuntimeException(format("unable to copy '%s' to '%s'", url, mediaPath), e);
-					} else {
-						try {
-							sleep(i * i * 1_000);
-						} catch (InterruptedException e1) {
-							currentThread().interrupt();
-							throw new RuntimeException("interrupted", e1);
-						}
-					}
-				}
-			}
-		}
-
+	private String svgFile(Document wikimediaDocument, String fileName) {
+		resources.createSvgFile(wikimediaDocument, fileName);
 		return format("<img src=\"%s\" />", fileName);
 	}
 

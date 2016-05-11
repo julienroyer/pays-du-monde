@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import fr.eimonku.wikimedia.WikimediaCache;
+import fr.eimonku.wikimedia.WikimediaResources;
 
 public class AnkiApplication {
 	public static void ankiApplication(String[] args, ApplicationAction action) {
@@ -24,13 +25,13 @@ public class AnkiApplication {
 		});
 
 		try (final Writer w = newBufferedWriter(resultFile)) {
-			action.accept(w, new WikimediaCache(cacheDir), mediaDir);
+			action.accept(w, new WikimediaCache(cacheDir), new WikimediaResources(mediaDir));
 		} catch (IOException e) {
 			throw new RuntimeException(format("unable to write to '%s'", resultFile), e);
 		}
 	}
 
 	public static interface ApplicationAction {
-		void accept(Writer w, WikimediaCache cache, Path mediaDir);
+		void accept(Writer w, WikimediaCache cache, WikimediaResources resources);
 	}
 }

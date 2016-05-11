@@ -12,8 +12,8 @@ import java.io.IOException;
 // TODO clean OrthographicProjectionsMaps
 public class Application {
 	public static void main(String... args) throws IOException {
-		ankiApplication(args, (w, cache, mediaDir) -> {
-			new ListeDesPaysDuMonde(mediaDir, cache).forEach(state -> {
+		ankiApplication(args, (w, cache, resources) -> {
+			new ListeDesPaysDuMonde(cache, resources).forEach(state -> {
 			  try {
 				  w.append(state.name).append(';');
 				  w.append(state.capitals).append(';');
